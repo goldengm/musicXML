@@ -25,6 +25,29 @@ body{font-family:Arial, Verdana, Helvetica, sans-serif;font-size:12px;color:#575
 h1{color:#575757;text-shadow:1px 1px 0 #FFF;font-weight:normal;margin:0 0 10px 0;font-size:24px;}
 h2{color:#426d9d;font-size:18px;margin:0 0 6px 0;}
 h3{color:#426d9d;font-size:16px;}
+.inline_bl{
+	display:inline-block;
+}
+ svg{
+	width:700px;
+
+}
+g.g {
+
+}
+.bf {
+    font-family: sans-serif;
+    font-size: 7px;
+    position: absolute;
+    display: contents;
+}
+text.f4 {
+
+}
+.rat svg g{
+
+}
+
 
 a:link, a:visited {
 	color:#335c82;
@@ -309,8 +332,8 @@ input[readonly] {
 
 body{
 	background-image: url("../images/blackmusic.png");
-	background-repeat: no-repeat;
-	background-size: cover;
+	/*background-repeat: no-repeat;
+	background-size: cover;*/
 	background-position: top;
 }
 #notation{
@@ -318,8 +341,13 @@ body{
 	height: 100%;
 	*background-color: #e3fff670;
 	background-color: #ffffff;
-	width: 80%;
-	margin: auto;
+	width: 40000px;	
+    padding-top: 43px;
+	overflow-x: scroll;
+}
+svg:not(:root) {
+    overflow: hidden;
+    overflow-x: scroll;
 }
 #comp{
 	text-align: center;

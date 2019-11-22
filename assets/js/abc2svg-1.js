@@ -6331,24 +6331,28 @@ abc2svg.Abc = function(w) {
     }
 
     function zd() {
+        var a = "";
         if (!Qa && z && w.img_out && 0 != ia) {
-            var a = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"\n\txmlns:xlink="http://www.w3.org/1999/xlink"\n\tcolor="'
+
+             a += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"\n\txmlns:xlink="http://www.w3.org/1999/xlink"\n\tcolor="'
               , c = ""
               , a = r.fgcolor ? a + (r.fgcolor + '" fill="' + r.fgcolor + '"') : a + 'black"'
-              , a = a + ' class="music" stroke-width=".7"';
+              , a = a + ' class="music inline_bl first" stroke-width="0.7"';
             r.bgcolor && (a += ' style="background-color: ' + r.bgcolor + '"');
             ia *= r.scale;
-            a = w.imagesize ? a + ("\n" + w.imagesize + ' viewBox="0 -35 ' + ga.width.toFixed(0) + " " + (ia.toFixed(0) * 1 + 20 * 1) + '">\n') : a + ('\n\twidth="' + ga.width.toFixed(0) + 'px" height="' + ia.toFixed(0) + 'px">\n');
+            a = w.imagesize ? a + ("\n" + w.imagesize + ' viewBox="70 -10 ' + ga.width.toFixed(0) + ' 230">\n') : a + ('\n\twidth="' + ga.width.toFixed(0) + 'px" height="' + ia.toFixed(0) + 'px">\n');
             if (oc || wc || Wb)
                 a += '<style type="text/css">' + oc + wc,
                 Wb && (a = 0 < Wb.indexOf("(") ? a + ('\n.disptxt{font:bold italic 14.0px serif; color:red}\n.music{font:24px music}\n@font-face {\n  font-family:"music";\n  src:' + Wb + "}") : a + ("\n.music{font:24px " + Wb + "}")),
                 a += "\n</style>\n";
-            (fe += se) && (a += "<defs>" + fe + "\n</defs>\n");
-            1 != r.scale && (a += '<g class="g" transform="scale(' + r.scale.toFixed(2) + ')">\n',
+
+            1 != r.scale && (a += '<g class="g" transform="scale(1.295)">\n',
             c = "</g>\n");
+            (fe += se) && (a += "<defs>" + fe + "\n</defs>\n");
             ng && ng.ps_flush(!0);
             w.img_out(a + z + c + "</svg>");
             wc = z = "";
+            console.log("aaaaaaa",a);
             if (r.fullsvg)
                 for (ee = {},
                 a = 0; a < Zc.length; a++)

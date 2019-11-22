@@ -1,4 +1,4 @@
-//~ Revision: 96, Copyright (C) 2016-2018: Willem Vree, contributions StÃ©phane David.
+//~ Revision: 96, Copyright (C) 2016-2018: Willem Vree, contributions StÃƒÂ©phane David.
 //~ This program is free software; you can redistribute it and/or modify it under the terms of the
 //~ GNU General Public License as published by the Free Software Foundation; either version 2 of
 //~ the License, or (at your option) any later version.
@@ -1133,6 +1133,7 @@ function parsePreload () {
 function resizeNotation () {
     var bh = document.documentElement.clientHeight;
     var eh = errElm.clientHeight;
+	console.log("ehhhhhhhh",eh);
     eh = Math.round (100 * eh / bh);
     abcElm.style.height = (notationHeight - eh) + '%';
 }
@@ -1318,4 +1319,3 @@ document.addEventListener ('DOMContentLoaded', function () {
     document.body.addEventListener ('keydown', keyDown);
 
 });
-
