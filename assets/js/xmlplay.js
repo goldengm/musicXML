@@ -242,6 +242,31 @@ function dolayout (abctxt) {
     gAbcSave = abctxt;  // bewaar abc met wijzigingen
     doModel (abctxt);
     doLayout (abctxt);
+    $("div#notation").css('overflow-x', 'inherit').css('white-space', 'inherit');
+    $('li#notesgap').hide();
+    $('li#notesgap2').show();
+    $("input[name=optradioPosition][value='0']").prop("checked",true);
+
+
+       $('input[type=radio][name=optradioPosition]').change(function() {
+        if (this.value == 0) {
+            $('svg.music').remove();
+            $("div#notation").css('overflow-x', 'inherit').css('white-space', 'inherit');
+            $('li#notesgap').hide();
+            $('li#notesgap2').show();
+            doModel (abctxt);
+            doLayout (abctxt);
+        }
+        else if (this.value == 1) {
+            $('svg.music').remove();
+            $("div#notation").css('overflow-x', 'auto').css('white-space', 'nowrap');
+            $('li#notesgap').show();
+            $('li#notesgap2').hide();
+            doModel (abctxt);
+            doLayoutHoriz (abctxt);
+        }
+    });
+
 }
 
 function doModel (abctxt) {
@@ -408,6 +433,135 @@ function doModel (abctxt) {
     logerr (errtxt);
 }
 
+function doLayoutHoriz (abctxt) {
+    var abc2svg;
+    var muziek = '';
+    var errtxt = '';
+    var nSvg = 0;
+    iSeq = 0;
+    iSeqStart = 0;
+    ntsPos = {};    // {abc_char_pos -> nSvg, x, y, w, h}
+    stfPos = [];    // [stfys for each svg]
+    var stfys = {}; // y coors of the bar lines in a staff
+    var xleft, xright, xleftmin = 1000, xrightmax = 0;
+    curStaff = 0;
+
+    function errmsg (txt, line, col) {
+        errtxt += txt + '\n';
+    }
+
+    function img_out (str) {
+        if (str.indexOf ('<svg') != -1) {
+            stfPos [nSvg] = Object.keys (stfys);
+            stfys = {}
+            nSvg += 1;
+            if (xleft < xleftmin) xleftmin = xleft;
+            if (xright > xrightmax) xrightmax = xright;
+        }
+        muziek += str;
+    }
+
+    function svgInfo (type, s1, s2, x, y, w, h) {
+        if (type == 'note' || type == 'rest') {
+            x = abc2svg.ax (x).toFixed (2);
+            y = abc2svg.ay (y).toFixed (2);
+            h = abc2svg.ah (h);
+            ntsPos [s1] = [nSvg, x, y, w, h];
+        }
+        if (type == 'bar') {
+            y = abc2svg.ay (y);
+            h = abc2svg.ah (h);
+            y = Math.round (y + h);
+            stfys [y] = 1;
+            xright = abc2svg.ax (x);
+            xleft = abc2svg.ax (0);
+        }
+    }
+
+    function getNote (event) {
+        var p, isvg, x, y, w, h, xp, jsvg, i, ys, yp, t, v;
+        event.stopPropagation ();
+        x = event.clientX;           // position click relative to page
+        x -= this.getBoundingClientRect ().left;    // positie linker rand (van this = klikelement = svg) t.o.v. de viewPort
+        xp = x * gScale;
+        if (xp < xleftmin + 24 || xp > xrightmax) {  // click in the margin
+            playBack ();
+            return;
+        }
+        jsvg = deSvgs.indexOf (this);
+        yp = (event.clientY - this.getBoundingClientRect ().top) * gScale;
+        ys = stfPos [jsvg];
+        for (i = 0; i < ys.length; i++) {
+            if (ys [i] > yp) {                      // op staff i is geklikt
+                curStaff = i;
+                alignSystem (jsvg);
+                break;
+            }
+        }
+        for (i = 0; i < ntsSeq.length; ++i) {
+            p = ntsSeq [i].xy;
+            if (!p) continue;       // invisible rest
+            v = ntsSeq [i].vce
+            if (gStaves [curStaff].indexOf (v) == -1) continue; // stem niet in balk curStaff
+            isvg = p[0]; x = p[1]; y = p[2]; w = p[3]; h = p[4];
+            if (isvg < jsvg) continue;
+            if (xp < parseFloat (x) + w) {
+                iSeq = i;
+                iSeqStart = iSeq;   // zet ook de permanente startpositie
+                t = ntsSeq [i].t
+                while (ntsSeq [i] && ntsSeq [i].t == t) {
+                    putMarkLoc (ntsSeq [i]);
+                    i += 1
+                }
+                break;
+            }
+        }
+    }
+
+    if (!abctxt) return;
+
+    var user = {
+        'imagesize': 'width="100%"',
+        'img_out': img_out,
+        'errmsg': errmsg,
+        'read_file': function (x) { return ''; },   // %%abc-include, unused
+        'anno_start': svgInfo,
+        'get_abcmodel': null
+    }
+    abc2svg = new Abc (user);
+    var abctxtHoriz = '';
+    abctxtHoriz = abctxt.replace(/snm=\".*\"/g, 'snm=""');
+    abctxtHoriz = abctxt.replace('I:linebreak $', "I:linebreak $\n%%singleline 1");
+    var totalInstancesG = (abctxtHoriz.match(/<\/g>/g) || []).length;
+    console.log(abctxtHoriz);
+    abc2svg.tosvg ('abc2svg', abctxtHoriz);
+    if (errtxt == '') errtxt = 'no error\n';
+    logerr (errtxt);
+	if (!muziek) return;
+
+    abcElm.innerHTML = '<div id="leeg" style="height:'+ '0' +'px">&nbsp;</div>';
+    abcElm.innerHTML += muziek;
+    abcElm.innerHTML += '<div id="leeg" style="height:'+ '200' +'px">&nbsp;</div>';
+    addUnlockListener (document.getElementById ('leeg'), 'click', playBack);
+    deSvgs = Array.prototype.slice.call (abcElm.getElementsByTagName ('svg'));
+    var gs = Array.prototype.slice.call (abcElm.getElementsByClassName ('g'));
+    deSvgGs = gs.length ? gs : deSvgs;
+    setScale ();
+    deSvgs[0].style.width = totalInstancesG*100+'%';
+    $("input#notesgapvalue").val(totalInstancesG);
+    $("input#notesgapvalue").change(function() {
+        deSvgs[0].style.width = $(this).val()*100+'%';
+    });
+    deSvgs.forEach (function (svg) {
+        if (twoSys) svg.style.display = 'none';   // want beide systemen worden in putMarkLoc aan gezet
+        addUnlockListener (svg, 'click', getNote);
+    });
+    mkNtsSeq ();
+}
+
+
+
+
 function doLayout (abctxt) {
     var abc2svg;
     var muziek = '';
@@ -507,7 +661,7 @@ function doLayout (abctxt) {
     abc2svg.tosvg ('abc2svg', abctxt);
     if (errtxt == '') errtxt = 'no error\n';
     logerr (errtxt);
-	if (!muziek) return;
+    if (!muziek) return;
 
     abcElm.innerHTML = '<div id="leeg" style="height:'+ '0' +'px">&nbsp;</div>';
     abcElm.innerHTML += muziek;
@@ -517,12 +671,24 @@ function doLayout (abctxt) {
     var gs = Array.prototype.slice.call (abcElm.getElementsByClassName ('g'));
     deSvgGs = gs.length ? gs : deSvgs;
     setScale ();
+        $("input#notesgapvalue2").val(1);
+        $("input#notesgapvalue2").change(function() {
+                var perctVert = 100 + $(this).val()*2;
+               $('svg.music').css('width', perctVert +'%');
+
+        });
     deSvgs.forEach (function (svg) {
         if (twoSys) svg.style.display = 'none';   // want beide systemen worden in putMarkLoc aan gezet
         addUnlockListener (svg, 'click', getNote);
     });
     mkNtsSeq ();
 }
+
+
+
+
+
+
 
 function setScale () {
     if (deSvgs.length == 0) return;
