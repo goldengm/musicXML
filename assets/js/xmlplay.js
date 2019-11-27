@@ -25,7 +25,11 @@ var instTab = {};   // { instrument number -> instrument name } for non standard
     var dottedHeight = 30;
     var curStaff = 0;
     var isvgPrev = [];  // svg index of each marker
+    var issvgHoriz = false;
+    var scrollchkHorizCnt = 0;
+    var prevHorizVal = 0;
     var isvgAligned = 0;
+    var totalInstancesGlb = 1;
     var rMarks = [];    // a marker for each voice
     var audioCtx = null;
     var golven = [];
@@ -240,30 +244,88 @@ function dolayout (abctxt) {
         gDiafret = tns [1];
     }
     gAbcSave = abctxt;  // bewaar abc met wijzigingen
+
+    abctxt = abctxt.replace(/snm=\".*\"/g, 'snm=""');
+    abctxt = abctxt.replace(/nm=\".*\"/g, 'nm=""');
+
+
     doModel (abctxt);
     doLayout (abctxt);
+    
     $("div#notation").css('overflow-x', 'inherit').css('white-space', 'inherit');
     $('li#notesgap').hide();
     $('li#notesgap2').show();
     $("input[name=optradioPosition][value='0']").prop("checked",true);
+    $("div#notation").css('overflow-x', 'inherit').css('overflow-y', 'auto').css('height', '600px').css('white-space', 'inherit');
+    isPlaying=0;
+    $('button#play').val('Play');
+    clearTimeout (timer1);
+
+    $('button#stop').click(function() {
+            isPlaying=0;
+            $('button#play').val('Play');
+            clearTimeout (timer1);
+            if(!issvgHoriz){
+                $('svg.music').remove();
+                $('div#leeg').remove();
+                $("div#notation").css('overflow-x', 'inherit').css('overflow-y', 'auto').css('height', '600px').css('white-space', 'inherit');
+                $('li#notesgap').hide();
+                $('li#notesgap2').show();
+                prevHorizVal = 0;
+
+                doModel (abctxt);
+                doLayout (abctxt);
+            }else{
+                $('svg.music').remove();
+                $('div#leeg').remove();
+                $("div#notation").css('overflow-x', 'auto').css('overflow-y', 'inherit').css('height', 'inherit').css('white-space', 'nowrap');
+                $('li#notesgap').show();
+                $('li#notesgap2').hide();
+                prevHorizVal = 0;
+                var abctxtHoriz = '';
+                abctxtHoriz = abctxt.replace('I:linebreak $', "%%singleline 1");
+                doModel (abctxtHoriz);
+                doLayoutHoriz (abctxtHoriz);
+            }
+        });
+
 
 
        $('input[type=radio][name=optradioPosition]').change(function() {
         if (this.value == 0) {
             $('svg.music').remove();
-            $("div#notation").css('overflow-x', 'inherit').css('white-space', 'inherit');
+            $('div#leeg').remove();
+            $("div#notation").css('overflow-x', 'inherit').css('overflow-y', 'auto').css('height', '600px').css('white-space', 'inherit');
             $('li#notesgap').hide();
             $('li#notesgap2').show();
+            isPlaying=0;
+            $('button#play').val('Play');
+            clearTimeout (timer1);
+            issvgHoriz = false;
+            prevHorizVal = 0;
             doModel (abctxt);
             doLayout (abctxt);
         }
         else if (this.value == 1) {
             $('svg.music').remove();
-            $("div#notation").css('overflow-x', 'auto').css('white-space', 'nowrap');
+            $('div#leeg').remove();
+            $("div#notation").css('overflow-x', 'auto').css('overflow-y', 'inherit').css('height', 'inherit').css('white-space', 'nowrap');
             $('li#notesgap').show();
             $('li#notesgap2').hide();
-            doModel (abctxt);
-            doLayoutHoriz (abctxt);
+            isPlaying=0;
+            $('button#play').val('Play');
+            clearTimeout (timer1);
+            issvgHoriz = true;
+            prevHorizVal = 0;
+            var abctxtHoriz = '';
+            abctxtHoriz = abctxt.replace('I:linebreak $', "%%singleline 1");
+            //var abctxtHorizT = abctxt.split('I:linebreak $');
+            //abctxtHorizT[1] = abctxtHorizT[1].split('$').join("");
+            //abctxtHoriz = abctxtHorizT.join('I:linebreak ?');
+            //console.log(abctxtHoriz);
+
+            doModel (abctxtHoriz);
+            doLayoutHoriz (abctxtHoriz);
         }
     });
 
@@ -529,12 +591,8 @@ function doLayoutHoriz (abctxt) {
         'get_abcmodel': null
     }
     abc2svg = new Abc (user);
-    var abctxtHoriz = '';
-    abctxtHoriz = abctxt.replace(/snm=\".*\"/g, 'snm=""');
-    abctxtHoriz = abctxt.replace('I:linebreak $', "I:linebreak $\n%%singleline 1");
-    var totalInstancesG = (abctxtHoriz.match(/<\/g>/g) || []).length;
-    console.log(abctxtHoriz);
-    abc2svg.tosvg ('abc2svg', abctxtHoriz);
+    var totalInstancesG = (abctxt.match(/<\/g>/g) || []).length;
+    abc2svg.tosvg ('abc2svg', abctxt);
     if (errtxt == '') errtxt = 'no error\n';
     logerr (errtxt);
 	if (!muziek) return;
@@ -548,10 +606,14 @@ function doLayoutHoriz (abctxt) {
     deSvgGs = gs.length ? gs : deSvgs;
     setScale ();
     deSvgs[0].style.width = totalInstancesG*100+'%';
+    totalInstancesGlb = totalInstancesG*100;
     $("input#notesgapvalue").val(totalInstancesG);
     $("input#notesgapvalue").change(function() {
         deSvgs[0].style.width = $(this).val()*100+'%';
+        totalInstancesGlb = $(this).val()*100;
     });
+    $("svg text.f2").attr('y', $("svg text.f2").first().attr('y'));
+    $("svg text.f3").attr('y', $("svg text.f3").first().attr('y'));
     deSvgs.forEach (function (svg) {
         if (twoSys) svg.style.display = 'none';   // want beide systemen worden in putMarkLoc aan gezet
         addUnlockListener (svg, 'click', getNote);
@@ -672,8 +734,10 @@ function doLayout (abctxt) {
     deSvgGs = gs.length ? gs : deSvgs;
     setScale ();
         $("input#notesgapvalue2").val(1);
+        totalInstancesGlb = 100;
         $("input#notesgapvalue2").change(function() {
                 var perctVert = 100 + $(this).val()*2;
+                totalInstancesGlb = perctVert;
                $('svg.music').css('width', perctVert +'%');
 
         });
@@ -709,6 +773,7 @@ function alignSystem (isvg) {   // uitlijnen balken met de rollijn
     var istf = curStaff;
     var y = (stfPos [isvg][istf] - stfHgt [istf]) / gScale;
     var newTop = Math.round (abcElm.scrollTop + u + y - dottedHeight - t);
+    //console.log(newTop+' ## '+ abcElm);
     if (newTop != abcElm.scrollTop) {
         if (hasSmooth) abcElm.style ['scroll-behavior'] = animflag ? 'smooth' : 'auto';
         abcElm.scrollTop = newTop;
@@ -745,6 +810,7 @@ function lijn_shift (evt) {
 }
 
 function putMarkLoc (n) {
+
     var p, isvg, x, y, w, h, mark, pn;
     mark = rMarks [n.vce];
     p = n.xy;
@@ -754,8 +820,9 @@ function putMarkLoc (n) {
         return;
     }
     isvg = p[0]; x = p[1]; y = p[2]; w = p[3]; h = p[4];
+    scrollchkHorizCnt = scrollchkHorizCnt+1;
     if (n.inv) { w = 0; h = 0; }    // markeer geen onzichtbare rusten/noten
-    if (isvg != isvgPrev [n.vce]) {
+    if (isvg != isvgPrev [n.vce] || issvgHoriz) {
         pn = mark.parentNode;
         if (pn) {
             pn.removeChild(mark);
@@ -765,28 +832,66 @@ function putMarkLoc (n) {
         pn = deSvgGs [isvg]
         pn.insertBefore (mark, pn.firstChild);
         isvgPrev [n.vce] = isvg;
-        alignSystem(isvg);
+        if(!issvgHoriz){ alignSystem(isvg); }
         if (n.vce==0 && pn){ 
-            $("rect:eq(1)").attr("id", "newId");
+            $("rect").eq(3).attr("id", "newId");
+            //$("rect[fill-opacity='0.5']")
             var element = document.getElementById("newId");
-            element.scrollIntoView();
-
-
+            if(issvgHoriz){
+                var randomParent = document.getElementById('notation');
+                scrollParentToChild(randomParent, element);
+            }else{
+                element.scrollIntoView();
+            }
         }
     }
     mark.setAttribute ('x', x);
     mark.setAttribute ('y', y);
     mark.setAttribute ('width', w);
-    mark.setAttribute('height', h);
-
-
-
-
-
-    
+    mark.setAttribute('height', h);  
 
 }
 
+function scrollParentToChild(parent, child) {
+var  $element = $("rect#newId");
+//console.log($element);
+var currRectPos = parseInt($element.attr('x'))*1.4;
+var currRectPos2 = parseInt($element.position().left*1.13);
+if($element && scrollchkHorizCnt>30){
+
+    scrollchkHorizCnt=0;
+    if(prevHorizVal<currRectPos){
+        prevHorizVal = currRectPos;
+        // $('#notation').animate({
+        //             scrollLeft: $element.attr('x')
+        //         }, 500);
+        $('#notation').scrollLeft(currRectPos);
+    }
+        //console.log(prevHorizVal+'###');
+        //console.log($element.offset().top+' '+currRectPos+' '+$element.offset().left+' '+currRectPos2+' '+$('#notation').offset().left);
+}
+  // // Where is the parent on page
+  // var parentRect = parent.getBoundingClientRect();
+  // // What can you see?
+  // var parentViewableArea = {
+  //   height: parent.clientHeight,
+  //   width: parent.clientWidth
+  // };
+
+  // // Where is the child
+  // var childRect = child.getBoundingClientRect();
+  // // Is the child viewable?
+  // var isViewable = (childRect.top >= parentRect.top) && (childRect.top <= parentRect.top + parentViewableArea.height);
+
+  // // if you can't see the child try to scroll parent
+  // if (!isViewable) {
+  //   // scroll by offset relative to parent
+  //   parent.scrollTop = (childRect.top + parent.scrollTop) - parentRect.top
+
+  // }
+
+
+}
 function mkNtsSeq () {
     var curNoteTime  = iSeq > 0 ? ntsSeq [iSeq].t : 0;
     ntsSeq = []; barTimes = {};
