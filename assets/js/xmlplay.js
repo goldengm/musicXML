@@ -27,6 +27,8 @@ var instTab = {};   // { instrument number -> instrument name } for non standard
     var isvgPrev = [];  // svg index of each marker
     var issvgHoriz = false;
     var scrollchkHorizCnt = 0;
+    var tempAdjustPos = 0;
+
     var prevHorizVal = 0;
     var isvgAligned = 0;
     var totalInstancesGlb = 1;
@@ -265,6 +267,8 @@ function dolayout (abctxt) {
             isPlaying=0;
             $('button#play').val('Play');
             clearTimeout (timer1);
+            tempAdjustPos = 0;
+
             if(!issvgHoriz){
                 $('svg.music').remove();
                 $('div#leeg').remove();
@@ -292,6 +296,8 @@ function dolayout (abctxt) {
 
 
        $('input[type=radio][name=optradioPosition]').change(function() {
+        tempAdjustPos = 0;
+
         if (this.value == 0) {
             $('svg.music').remove();
             $('div#leeg').remove();
@@ -834,7 +840,7 @@ function putMarkLoc (n) {
         isvgPrev [n.vce] = isvg;
         if(!issvgHoriz){ alignSystem(isvg); }
         if (n.vce==0 && pn){ 
-            $("rect").eq(3).attr("id", "newId");
+            $("rect[fill-opacity]").first().attr("id", "newId");
             //$("rect[fill-opacity='0.5']")
             var element = document.getElementById("newId");
             if(issvgHoriz){
@@ -855,19 +861,20 @@ function putMarkLoc (n) {
 function scrollParentToChild(parent, child) {
 var  $element = $("rect#newId");
 //console.log($element);
-var currRectPos = parseInt($element.attr('x'))*1.4;
-var currRectPos2 = parseInt($element.position().left*1.13);
+var currRectPos = parseInt($element.attr('x'))*1.333;
+//var currRectPos2 = parseInt($element.position().left*1.13);
 if($element && scrollchkHorizCnt>30){
 
     scrollchkHorizCnt=0;
+    tempAdjustPos = tempAdjustPos+5;
+        $('#notation').scrollLeft(currRectPos+tempAdjustPos);
     if(prevHorizVal<currRectPos){
         prevHorizVal = currRectPos;
         // $('#notation').animate({
         //             scrollLeft: $element.attr('x')
         //         }, 500);
-        $('#notation').scrollLeft(currRectPos);
     }
-        //console.log(prevHorizVal+'###');
+        console.log(tempAdjustPos+'###');
         //console.log($element.offset().top+' '+currRectPos+' '+$element.offset().left+' '+currRectPos2+' '+$('#notation').offset().left);
 }
   // // Where is the parent on page
