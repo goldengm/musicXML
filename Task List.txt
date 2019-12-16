@@ -1,0 +1,34 @@
+Create a musicXML player that loads and renders musicXML and plays back the audio synced to the displayed sheet music.
+
+All code should be complete with comment documentation, clean and fast loading on all devices (PC, iOS, Android etc)
+
+Milestone 01 - Proof of Concept for Player
+
+
+Create a player that allow the user to select a properly formatted MusicXML file then render that file as an SVG in the browser using only javascript.
+The music display should be one line of music notation and one line of bass guitar tabs
+Show a cursor that aligns with the music notes and the respective bass tab and plays through the music left to right, auto scrolling the music to the end.
+
+Milestone 02 - Complete basic play functions
+
+
+The player should be able to play/pause/stop
+Play audio that is generated in the browser by playing a sound font file that will be provided.
+Display a scroll bar at the bottom so the user can seek to any point, select and play from that point.
+Have ability to switch between vertical 'page view' and horizontal 'scroll view'
+
+Milestone 03 - Full player functions
+
+
+Incorporate my design elements
+Add looping function with click and drag to select regions
+Add tempo change and transpose capabilities
+Allow zoom of notation
+Allow selection of tracks - Meaning I can select sound font sound or a pre-recorded m4a file for audio playback
+
+
+Task:
+1. Select point and play from that point
+2. Design Update
+3. Add looping function with click and drag to select regions
+4. Allow selection of tracks - Meaning I can select sound font sound or a pre-recorded m4a file for audio playback

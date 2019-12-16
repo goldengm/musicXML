@@ -1,4 +1,4 @@
-//~ Revision: 96, Copyright (C) 2016-2018: Willem Vree, contributions StÃ©phane David.
+//~ Revision: 96, Copyright (C) 2016-2018: Willem Vree, contributions StÃƒÂ©phane David.
 //~ This program is free software; you can redistribute it and/or modify it under the terms of the
 //~ GNU General Public License as published by the Free Software Foundation; either version 2 of
 //~ the License, or (at your option) any later version.
@@ -286,8 +286,6 @@ function dolayout (abctxt) {
                 $('li#notesgap').show();
                 $('li#notesgap2').hide();
                 prevHorizVal = 0;
-                var abctxtHoriz = '';
-                abctxtHoriz = abctxt.replace('I:linebreak $', "%%singleline 1");
                 doModel (abctxtHoriz);
                 doLayoutHoriz (abctxtHoriz);
             }
@@ -301,7 +299,7 @@ function dolayout (abctxt) {
         if (this.value == 0) {
             $('svg.music').remove();
             $('div#leeg').remove();
-            $("div#notation").css('overflow-x', 'inherit').css('overflow-y', 'auto').css('height', '600px').css('white-space', 'inherit');
+            $("div#notation2").css('overflow-x', 'inherit').css('overflow-y', 'auto').css('height', '600px').css('white-space', 'inherit');
             $('li#notesgap').hide();
             $('li#notesgap2').show();
             isPlaying=0;
@@ -309,13 +307,14 @@ function dolayout (abctxt) {
             clearTimeout (timer1);
             issvgHoriz = false;
             prevHorizVal = 0;
+            document.getElementById('notation').style.width = 80+'%';
             doModel (abctxt);
             doLayout (abctxt);
         }
         else if (this.value == 1) {
             $('svg.music').remove();
             $('div#leeg').remove();
-            $("div#notation").css('overflow-x', 'auto').css('overflow-y', 'inherit').css('height', 'inherit').css('white-space', 'nowrap');
+            $("div#notation2").css('overflow-x', 'auto').css('overflow-y', 'inherit').css('height', 'inherit').css('white-space', 'nowrap');
             $('li#notesgap').show();
             $('li#notesgap2').hide();
             isPlaying=0;
@@ -329,6 +328,8 @@ function dolayout (abctxt) {
             //abctxtHorizT[1] = abctxtHorizT[1].split('$').join("");
             //abctxtHoriz = abctxtHorizT.join('I:linebreak ?');
             //console.log(abctxtHoriz);
+            var totalInstancesG = (abctxt.match(/<\/g>/g) || []).length;
+            document.getElementById('notation').style.width = totalInstancesG*100+'%';
 
             doModel (abctxtHoriz);
             doLayoutHoriz (abctxtHoriz);
@@ -598,6 +599,7 @@ function doLayoutHoriz (abctxt) {
     }
     abc2svg = new Abc (user);
     var totalInstancesG = (abctxt.match(/<\/g>/g) || []).length;
+    //getElementById('notation').style.width = totalInstancesG*100+'%';
     abc2svg.tosvg ('abc2svg', abctxt);
     if (errtxt == '') errtxt = 'no error\n';
     logerr (errtxt);
@@ -611,11 +613,10 @@ function doLayoutHoriz (abctxt) {
     var gs = Array.prototype.slice.call (abcElm.getElementsByClassName ('g'));
     deSvgGs = gs.length ? gs : deSvgs;
     setScale ();
-    deSvgs[0].style.width = totalInstancesG*100+'%';
     totalInstancesGlb = totalInstancesG*100;
     $("input#notesgapvalue").val(totalInstancesG);
     $("input#notesgapvalue").change(function() {
-        deSvgs[0].style.width = $(this).val()*100+'%';
+        document.getElementById('notation').style.width = $(this).val()*100+'%';
         totalInstancesGlb = $(this).val()*100;
     });
     $("svg text.f2").attr('y', $("svg text.f2").first().attr('y'));
@@ -860,22 +861,30 @@ function putMarkLoc (n) {
 
 function scrollParentToChild(parent, child) {
 var  $element = $("rect#newId");
+var element = document.getElementById("newId");
+parent =  document.getElementById("notation2");
 //console.log($element);
-var currRectPos = parseInt($element.attr('x'))*1.333;
-//var currRectPos2 = parseInt($element.position().left*1.13);
+var currRectPos = parseFloat($element.attr('x'))*1.333;
+var currRectPos2 = parseInt($element.position().left);
+var jhjkhkjhk = document.getElementById('newId').getBoundingClientRect();
 if($element && scrollchkHorizCnt>30){
 
     scrollchkHorizCnt=0;
-    tempAdjustPos = tempAdjustPos+5;
-        $('#notation').scrollLeft(currRectPos+tempAdjustPos);
+    tempAdjustPos = tempAdjustPos+30;
+    //$('#notation').scrollLeft(tempAdjustPos);
+    //var notationScrPos =  $('#notation').scrollLeft;
     if(prevHorizVal<currRectPos){
         prevHorizVal = currRectPos;
         // $('#notation').animate({
         //             scrollLeft: $element.attr('x')
         //         }, 500);
+        //$('#notation2').scrollLeft(currRectPos2+(currRectPos2*0.15));
+        element.scrollIntoView();
+        parent.scrollLeft += window.innerWidth/6;
+        console.log($element.offset().top+' '+currRectPos+' '+$element.offset().left+' '+currRectPos2+' '+$('#notation').offset().left+' '+jhjkhkjhk);
+        console.log(jhjkhkjhk);
     }
-        console.log(tempAdjustPos+'###');
-        //console.log($element.offset().top+' '+currRectPos+' '+$element.offset().left+' '+currRectPos2+' '+$('#notation').offset().left);
+        console.log(tempAdjustPos+'###'+currRectPos);
 }
   // // Where is the parent on page
   // var parentRect = parent.getBoundingClientRect();
@@ -1596,4 +1605,3 @@ document.addEventListener ('DOMContentLoaded', function () {
     document.body.addEventListener ('keydown', keyDown);
 
 });
-

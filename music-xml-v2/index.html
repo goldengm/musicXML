@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bass Buddy</title>
+    <style>
+        /******** slider custom style ********/
+        .slider {
+            -webkit-appearance: none;
+            height: 3px;
+            width: 190px;
+            background-color: #f2f2f2;
+            border-radius: 2.5px;
+            outline: none;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 5.2px solid #0088e8;
+            background: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+    <style>
+        @font-face {
+            font-family: Montserrat-Bold;
+            src: url("./assets/font/Montserrat-Bold.otf") format("opentype");
+        }
+        @font-face {
+            font-family: Montserrat-Medium;
+            src: url("./assets/font/Montserrat-Medium.otf") format("opentype");
+        }
+        .header {
+            width: 1280px;
+            height: 70px;
+            background-color: #0072c4;
+        }
+        .logo {
+            margin-top: 10px;
+            margin-left: 53px;
+        }
+        .title-bar {
+            width: 1280px;
+            height: 40px;
+            background-color: #ebebeb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .title {
+            font-family: Montserrat-Bold;
+            font-size: 18px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            color: #1c3242;
+        }
+        .content {
+            height: 390px;
+            width: 1280px;
+        }
+        .control-panel {
+            height: 100px;
+            width: 1280px;
+            background-color: #1c3242;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .stream-control {
+            margin-left: 26px;
+            width: 900px;
+            height: 50px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+        }
+        .stream-btn {
+            width: 50px;
+            height: 50px;
+        }
+        .stream-bar {
+            width: 820px;
+            height: 5px;
+            background-color: #ffffff;
+            border-radius: 1.5px;
+            margin-left: 30px;
+        }
+        .passed-stream-bar {
+            width: 520px;
+            height: 5px;
+            background-color: #7ed321;
+            border-radius: 1.5px;
+            position: absolute;
+            top: 23px;
+            left: 80px;
+        }
+        .tempo-control {
+            margin-left: 25px;
+            width: 158px;
+            height: 67px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .desc-btn {
+            width: 7px;
+            height: 13px;
+        }
+        .asc-btn {
+            width: 7px;
+            height: 13px;
+            transform: rotate(-180deg);
+        }
+        .tempo {
+            padding-left: 42px;
+            padding-right: 42px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .oval {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #ffffff;
+            background-color: #0088e8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tempo-value {
+            font-family: Montserrat-Medium;
+            font-size: 12px;
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: center;
+            color: #ffffff;
+        }
+        .rotate-control {
+            margin-left: 13px;
+            width: 70px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .config {
+            width: 70px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon {
+            width: 32px;
+            height: 32px;
+        }
+        .control-label {
+            margin-top: 7px;
+            font-family: Montserrat-Medium;
+            font-size: 14px;
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: center;
+            color: #ffffff;
+        }
+        .reset-tempo {
+            width: 109px;
+            height: 24px;
+            position: absolute;
+            top: 62px;
+            left: 817px;
+        }
+        .reset-tempo-label {
+            font-family: Montserrat-Medium;
+            font-size: 12px;
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: right;
+            color: #ffffff;
+            float: left;
+            margin-top: 5px;
+        }
+        .reset-tempo-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background-color: #0088e8;
+            float: right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .update-arrows {
+            width: 14px;
+            height: 13px;
+        }
+        .content {
+            position: relative;
+        }
+        .config-panel {
+            display: none;
+            width: 300px;
+            height: 390px;
+            opacity: 0.95;
+            background-color: #1c3242;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .close-btn {
+            float: right;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+        .close-btn-icon {
+            width: 10px;
+            height: 10px;
+        }
+        .config-title {
+            margin-top: 20px;
+            margin-left: 98px;
+            font-family: Montserrat-Medium;
+            font-size: 14px;
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            color: #ffffff;
+        }
+        .config-control-panel {
+            margin-left: 9px;
+            margin-top: 16px;
+            width: 281px;
+            height: 95px;
+            border-radius: 8px;
+            border: solid 1px #ffffff;
+            background-color: #1c3242;
+        }
+        .track-title {
+            margin-top: 36px;
+            margin-left: 104px;
+            font-family: Montserrat-Medium;
+            font-size: 14px;
+            font-weight: 500;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            color: #ffffff;
+        }
+        .track-control-panel {
+            width: 281px;
+            height: 125px;
+            margin-left: 10px;
+            margin-top: 16px;
+            border-radius: 8px;
+            border: solid 1px #ffffff;
+            background-color: #1c3242;
+            display: flex;
+            align-items: center;
+        }
+        .zoom-control-panel {
+            margin-top: 16px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .volume-control-panel {
+            margin-top: 22px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .track {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .drum-track {
+            margin-left: 12px;
+        }
+        .bass-track {
+            margin-left: 50px;
+        }
+        .mix-track {
+            margin-left: 49px;
+        }
+        .switch-btn {
+            margin-top: 13px;
+            height: 23px;
+            width: 40px;
+        }
+        .zoom-slider {
+            margin-left: 10px;
+        }
+        .vol-slider {
+            margin-left: 16px;
+        }
+    </style>
+    <style>
+        /********* switch custom style *********/
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cfd8dc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 15px;
+            width: 15px;
+            left: 4px;
+            bottom: 3.5px;
+            background-color: #f44336;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+        input:checked + .switch-slider:before {
+            -webkit-transform: translateX(16px);
+            -ms-transform: translateX(16px);
+            transform: translateX(16px);
+            background-color: #4caf50;
+        }
+        .switch-slider.round {
+            border-radius: 23px;
+        }
+        .switch-slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+
+    <header class="header">
+        <img src="./assets/img/bass-buddy-logo-large.png" srcset="./assets/img/bass-buddy-logo-large@2x.png 2x, ./assets/img/bass-buddy-logo-large@3x.png 3x" class="logo">
+    </header>
+
+    <div class="body">
+
+        <div class="title-bar">
+            <div class="title">Title: Ain't No Stopping Us Now  |  Key: C major</div>
+        </div>
+
+        <div class="content">
+
+            <div class="config-panel">
+
+                <div class="close-btn">
+                    <img src="./assets/img/fill-1.svg" class="close-btn-icon">
+                </div>
+
+                <div class="config-title">Configurations</div>
+
+                <div class="config-control-panel">
+
+                    <div class="zoom-control-panel">
+                        <img src="./assets/img/zoom-out.svg" style="width: 20px; height: 20px;">
+                        <input type="range" min="1" max="100" value="50" class="slider zoom-slider">
+                        <img src="./assets/img/zoom-in.svg" style="margin-left: 14px; width: 20px; height: 20px;">
+                    </div>
+
+                    <div class="volume-control-panel">
+                        <img src="./assets/img/vol-down.svg" style="width: 13px; height: 19px;">
+                        <input type="range" min="1" max="100" value="50" class="slider vol-slider">
+                        <img src="./assets/img/vol-up.svg" style="margin-left: 14px; height: 20px; width: 25px;">
+                    </div>
+
+                </div>
+
+                <div class="track-title">Track Select</div>
+
+                <div class="track-control-panel">
+                    <div class="track drum-track">
+                        <img src="./assets/img/drummer.svg">
+                        <div class="switch-btn">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="switch-slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="track bass-track">
+                        <img src="./assets/img/bass-guitar.svg">
+                        <div class="switch-btn">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="switch-slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="track mix-track">
+                        <img src="./assets/img/mixer.svg">
+                        <div class="switch-btn">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="switch-slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="control-panel">
+
+            <div class="stream-control">
+                <img src="./assets/img/play-button.svg" class="stream-btn">
+                <div class="passed-stream-bar"></div>
+                <div class="stream-bar"></div>
+            </div>
+
+            <div class="tempo-control">
+                <img src="./assets/img/path-2.svg" class="desc-btn">
+                <div class="tempo">
+                    <div class="oval"><div class="tempo-value">113</div></div>
+                    <div class="control-label">Tempo</div>
+                </div>
+                <img src="./assets/img/path-2.svg" class="asc-btn">
+            </div>
+
+            <div class="rotate-control">
+                <img src="./assets/img/icon-rotate.svg" class="icon">
+                <div class="control-label">Rotate</div>
+            </div>
+
+            <div class="config">
+                <img src="./assets/img/icon-config.svg" class="icon">
+                <div class="control-label">Config</div>
+            </div>
+
+            <div class="reset-tempo">
+                <div class="reset-tempo-label">Reset Tempo</div>
+                <div class="reset-tempo-btn">
+                    <img src="./assets/img/update-arrows.svg" class="update-arrows">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        jQuery(document).ready(function() {
+
+            $('.close-btn').on('click', function() {
+                $('.config-panel').hide()
+            })
+
+            $('.config').on('click', function() {
+                $('.config-panel').show();
+            })
+
+        })
+    </script>
+    
+</body>
+</html>
